@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Final Report for Customer Churn Prediction</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="%F0%9F%93%8A-customer-churn-prediction-for-a-telecom-company-%E2%80%93-a-data-science-task">📊 <strong>Customer Churn Prediction for a Telecom Company – A Data Science Task</strong></h1>
+<p><strong>Task ID:</strong> 1 – Customer Churn Prediction for a Telecom Company<br>
+<strong>Expected Duration:</strong> 5 Days<br>
+<strong>Objective:</strong> Build a machine learning model to predict customer churn using historical telecom data.</p>
+<h2 id="1deliverables"><strong>1.Deliverables:</strong></h2>
+<ul>
+<li>📊 <strong>Exploratory Data Analysis (EDA)</strong> – Univariate &amp; Bivariate insights with visualizations.</li>
+<li>🛠 <strong>Feature Engineering</strong> – Creation, encoding, scaling, and selection of predictive features.</li>
+<li>🔀 <strong>Train/Test Split &amp; Model Selection</strong> – Logistic Regression, SVM, Decision Tree, Random Forest, XGBoost, LightGBM.</li>
+<li>📈 <strong>Performance Metrics</strong> – Confusion matrix, ROC AUC score, and comparative model evaluation.</li>
+<li>📑 <strong>Final Report</strong> – Consolidated results with plots, tables, and recommendations.</li>
+</ul>
+<hr>
+<h2 id="2-dataset-description"><strong>2. Dataset Description</strong></h2>
+<p>The dataset contains <strong>10,000 customer records</strong> with features covering demographics, contract details, billing information, and churn status.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CustomerID</code></td>
+<td>Unique customer identifier</td>
+</tr>
+<tr>
+<td><code>Gender</code></td>
+<td>Male or Female</td>
+</tr>
+<tr>
+<td><code>SeniorCitizen</code></td>
+<td>Senior citizen status (1 = Yes, 0 = No)</td>
+</tr>
+<tr>
+<td><code>Tenure</code></td>
+<td>Number of months with the company</td>
+</tr>
+<tr>
+<td><code>MonthlyCharges</code></td>
+<td>Monthly bill amount</td>
+</tr>
+<tr>
+<td><code>TotalCharges</code></td>
+<td>Total bill amount since joining</td>
+</tr>
+<tr>
+<td><code>Contract</code></td>
+<td>Month-to-month, One year, Two year</td>
+</tr>
+<tr>
+<td><code>PaymentMethod</code></td>
+<td>Billing payment method</td>
+</tr>
+<tr>
+<td><code>Churn</code></td>
+<td>Target variable (1 = Churned, 0 = Stayed)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="3-exploratory-data-analysis-eda"><strong>3. Exploratory Data Analysis (EDA)</strong></h2>
+<h3 id="31-univariate-analysis"><strong>3.1 Univariate Analysis</strong></h3>
+<p><strong>Gender Distribution</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/countplot_gender_distribution.png" alt="Gender"></p>
+<ul>
+<li>Male: <strong>50.13%</strong></li>
+<li>Female: <strong>49.87%</strong><br>
+✅ Balanced — minimal gender bias risk.</li>
+</ul>
+<p><strong>Senior Citizen Status</strong><br>
+<img src="https://raw.github.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/countplot_seniorcitizen_distribution.png" alt="Senior Citizen"></p>
+<ul>
+<li>Non-Senior: <strong>50.07%</strong></li>
+<li>Senior: <strong>49.93%</strong><br>
+✅ Age group balance — low bias risk.</li>
+</ul>
+<p><strong>Tenure Summary</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/histplot_tenure_distribution.png" alt="Tenure"></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean</td>
+<td>35.96 months</td>
+</tr>
+<tr>
+<td>Median</td>
+<td>36 months</td>
+</tr>
+<tr>
+<td>Min–Max</td>
+<td>1–71 months</td>
+</tr>
+</tbody>
+</table>
+<p>✅ Wide spread — steady acquisition &amp; churn over time.</p>
+<p><strong>Monthly Charges Summary</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/histplot_monthly_charges.png" alt="Monthly Charges"></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean</td>
+<td>$70.45</td>
+</tr>
+<tr>
+<td>Median</td>
+<td>$70.59</td>
+</tr>
+<tr>
+<td>Min–Max</td>
+<td>$20.00 – $120.00</td>
+</tr>
+</tbody>
+</table>
+<p>✅ Even distribution; most pay around <strong>$70/month</strong>.</p>
+<p><strong>Contract Distribution</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/countplot_contract_distribution.png" alt="Contract"></p>
+<ul>
+<li>Month-to-month: <strong>32.19%</strong></li>
+<li>One year: <strong>34.55%</strong></li>
+<li>Two year: <strong>33.26%</strong><br>
+✅ Balanced — avoids contract-type skew.</li>
+</ul>
+<p><strong>Payment Method Distribution</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/count_plot_payment_method.png" alt="Payment"></p>
+<ul>
+<li>All methods ~25% share<br>
+✅ No payment-method bias.</li>
+</ul>
+<p><strong>Churn Distribution</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/countplot_churn_distribution.png" alt="Churn"></p>
+<ul>
+<li>Non-Churn: <strong>73.3%</strong></li>
+<li>Churn: <strong>26.7%</strong><br>
+⚠ Imbalanced — resampling or weighting may be required.</li>
+</ul>
+<p><strong>Total Charges Summary</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/histplot_totalcharges.png" alt="Total Charges"></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean</td>
+<td>$2,541.81</td>
+</tr>
+<tr>
+<td>Median</td>
+<td>$2,117.14</td>
+</tr>
+</tbody>
+</table>
+<p>✅ Strongly dependent on <strong>Tenure × Monthly Charges</strong>.</p>
+<hr>
+<h3 id="32-bivariate-analysis"><strong>3.2 Bivariate Analysis</strong></h3>
+<p><strong>Gender vs Churn</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/gender_vs_churn.png" alt="Gender vs Churn"><br>
+💡 No significant churn difference between genders.</p>
+<p><strong>Senior Citizen vs Churn</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/churn_vs_senior_citizen.png" alt="Senior vs Churn"><br>
+💡 Age has minimal churn impact.</p>
+<p><strong>Contract Type vs Churn</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/churn_rate_vs_contract.png" alt="Contract vs Churn"><br>
+💡 Slightly higher churn in <strong>1-year contracts</strong>.</p>
+<p><strong>Payment Method vs Churn</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/payment_method_vs_churn.png" alt="Payment vs Churn"><br>
+💡 Churn is uniform across payment methods.</p>
+<hr>
+<h3 id="33-correlation-insights"><strong>3.3 Correlation Insights</strong></h3>
+<p><img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/correlation_matrix.png" alt="Correlation Matrix"></p>
+<ul>
+<li><strong>Total Charges ↔ Tenure:</strong> 77% correlation</li>
+<li><strong>Total Charges ↔ Monthly Charges:</strong> 56% correlation<br>
+💡 Multicollinearity must be handled.</li>
+</ul>
+<hr>
+<h2 id="4-feature-engineering"><strong>4. Feature Engineering</strong></h2>
+<h3 id="key-steps"><strong>Key Steps</strong></h3>
+<ol>
+<li><strong>Train/Test Split</strong> – Stratified to preserve churn ratio.</li>
+<li><strong>Data Cleaning</strong> – Checked duplicates, data types, leakage.</li>
+<li><strong>Derived Features</strong> – Tenure groups, high monthly flag, autopay indicator, contract-payment combo.</li>
+<li><strong>Encoding</strong> – One-hot &amp; K-fold target encoding.</li>
+<li><strong>Scaling</strong> – StandardScaler for numeric features.</li>
+<li><strong>Multicollinearity Removal</strong> – Dropped redundant features (<code>TotalCharges</code>, <code>AvgChargesPerMonth</code>).</li>
+<li><strong>Feature Selection</strong> – RandomForest + SelectFromModel confirmed <strong>Contract</strong>, <strong>Tenure</strong>, <strong>MonthlyCharges</strong> as top predictors.</li>
+</ol>
+<hr>
+<h2 id="5-model-creation--evaluation"><strong>5. Model Creation &amp; Evaluation</strong></h2>
+<p><strong>Models Tested</strong></p>
+<ul>
+<li>Logistic Regression</li>
+<li>SVM</li>
+<li>Decision Tree</li>
+<li>Random Forest</li>
+<li>AdaBoost</li>
+<li>XGBoost</li>
+<li>LightGBM</li>
+</ul>
+<p><strong>Setup</strong></p>
+<ul>
+<li><strong>Split:</strong> 80/20 stratified</li>
+<li><strong>Tuning:</strong> GridSearchCV (3-fold CV)</li>
+<li><strong>Metric:</strong> ROC AUC</li>
+</ul>
+<p><strong>Performance Summary</strong><br>
+<img src="https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/barplot of models.png" alt="Model Comparison"></p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>ROC AUC</th>
+<th>Best Params</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SVM</td>
+<td><strong>0.5186</strong></td>
+<td><code>C=1, kernel='linear'</code></td>
+</tr>
+<tr>
+<td>XGBoost</td>
+<td>0.5089</td>
+<td><code>n_estimators=200, max_depth=7</code></td>
+</tr>
+<tr>
+<td>AdaBoost</td>
+<td>0.5078</td>
+<td><code>n_estimators=100</code></td>
+</tr>
+<tr>
+<td>Decision Tree</td>
+<td>0.5059</td>
+<td><code>max_depth=3</code></td>
+</tr>
+<tr>
+<td>Random Forest</td>
+<td>0.5020</td>
+<td><code>max_depth=5, n_estimators=200</code></td>
+</tr>
+<tr>
+<td>Logistic Regression</td>
+<td>0.4853</td>
+<td><code>C=10, penalty='l2'</code></td>
+</tr>
+<tr>
+<td>LightGBM</td>
+<td>0.4956</td>
+<td><code>n_estimators=100, max_depth=5</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="6-key-observations--next-steps"><strong>6. Key Observations &amp; Next Steps</strong></h2>
+<ul>
+<li>All models performed <strong>close to random guess (0.5 ROC AUC)</strong>.</li>
+<li>SVM performed best but still insufficient for deployment.</li>
+<li><strong>Likely Issues:</strong>
+<ul>
+<li>Features lack strong churn signal</li>
+<li>Possible data noise or hidden imbalance</li>
+<li>Need domain-specific feature engineering</li>
+</ul>
+</li>
+</ul>
+<p><strong>Next Actions:</strong></p>
+<ul>
+<li>Gather behavioral &amp; usage pattern data</li>
+<li>Explore advanced interaction features</li>
+<li>Try SMOTE/class weighting if imbalance impacts learning</li>
+</ul>
+<hr>
+<h2 id="%E2%9C%85-conclusion">✅ <strong>Conclusion</strong></h2>
+<p>The current dataset and features are <strong>not sufficient</strong> for accurate churn prediction.<br>
+The <strong>SVM (C=1, linear kernel)</strong> achieved the highest ROC AUC (<strong>0.5186</strong>) but requires significant feature and data enhancement before production use.</p>
+<hr>
+
+</body>
+</html>
