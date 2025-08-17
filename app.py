@@ -91,7 +91,7 @@ data = load_data()
 # Sidebar Navigation
 # ================================
 st.sidebar.title("📌 Navigation")
-page = st.sidebar.radio("Go to", ["Introduction", "Dashboard", "Model Training", "Prediction","About Me"])
+page = st.sidebar.radio("Go to", ["Introduction", "Dashboard", "Model Training", "Prediction","Final Report","About Me"])
 
 # ================================
 # 1. Introduction
@@ -115,7 +115,7 @@ if page == "Introduction":
     """)
 
     st.success("Use the sidebar to navigate to different sections of the app ✅")
-
+    
 # ================================
 # 2. EDA
 # ================================
@@ -204,6 +204,9 @@ elif page == "Dashboard":
 # ================================
 # 3. Model Training
 # ================================
+# ================================
+# 3. Model Training
+# ================================
 elif page == "Model Training":
     st.header("⚡ Model Training & Evaluation")
 
@@ -212,28 +215,103 @@ elif page == "Model Training":
     y = data["Churn"]
 
     # Train-Test Split
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
 
     # Scale numeric features
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    # Model Choice
-    model_choice = st.radio("Select Model", ["Logistic Regression", "XGBoost"])
+    # ================================
+    # Available Models
+    # ================================
+    model_choice = st.selectbox("Select Model", [
+        "Logistic Regression",
+        "K-Nearest Neighbors",
+        "Support Vector Machine (SVM)",
+        "Decision Tree",
+        "Random Forest",
+        "Gradient Boosting",
+        "XGBoost",
+        "Naive Bayes",
+        "Extra Trees",
+        "MLP (Neural Network)"
+    ])
 
     if st.button("Train Model"):
         if model_choice == "Logistic Regression":
             model = LogisticRegression()
             model.fit(X_train_scaled, y_train)
             y_pred = model.predict(X_test_scaled)
+            y_prob = model.predict_proba(X_test_scaled)[:,1]
 
-        else:
+        elif model_choice == "K-Nearest Neighbors":
+            from sklearn.neighbors import KNeighborsClassifier
+            model = KNeighborsClassifier(n_neighbors=5)
+            model.fit(X_train_scaled, y_train)
+            y_pred = model.predict(X_test_scaled)
+            y_prob = model.predict_proba(X_test_scaled)[:,1]
+
+        elif model_choice == "Support Vector Machine (SVM)":
+            from sklearn.svm import SVC
+            model = SVC(probability=True)
+            model.fit(X_train_scaled, y_train)
+            y_pred = model.predict(X_test_scaled)
+            y_prob = model.predict_proba(X_test_scaled)[:,1]
+
+        elif model_choice == "Decision Tree":
+            from sklearn.tree import DecisionTreeClassifier
+            model = DecisionTreeClassifier()
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            y_prob = model.predict_proba(X_test)[:,1]
+
+        elif model_choice == "Random Forest":
+            from sklearn.ensemble import RandomForestClassifier
+            model = RandomForestClassifier()
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            y_prob = model.predict_proba(X_test)[:,1]
+
+        elif model_choice == "Gradient Boosting":
+            from sklearn.ensemble import GradientBoostingClassifier
+            model = GradientBoostingClassifier()
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            y_prob = model.predict_proba(X_test)[:,1]
+
+        elif model_choice == "XGBoost":
             model = XGBClassifier(use_label_encoder=False, eval_metric="logloss")
             model.fit(X_train, y_train)
             y_pred = model.predict(X_test)
+            y_prob = model.predict_proba(X_test)[:,1]
 
+        elif model_choice == "Naive Bayes":
+            from sklearn.naive_bayes import GaussianNB
+            model = GaussianNB()
+            model.fit(X_train_scaled, y_train)
+            y_pred = model.predict(X_test_scaled)
+            y_prob = model.predict_proba(X_test_scaled)[:,1]
+
+        elif model_choice == "Extra Trees":
+            from sklearn.ensemble import ExtraTreesClassifier
+            model = ExtraTreesClassifier()
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            y_prob = model.predict_proba(X_test)[:,1]
+
+        elif model_choice == "MLP (Neural Network)":
+            from sklearn.neural_network import MLPClassifier
+            model = MLPClassifier(hidden_layer_sizes=(64,32), max_iter=500)
+            model.fit(X_train_scaled, y_train)
+            y_pred = model.predict(X_test_scaled)
+            y_prob = model.predict_proba(X_test_scaled)[:,1]
+
+        # ================================
         # Evaluation
+        # ================================
         st.subheader("Classification Report")
         st.text(classification_report(y_test, y_pred))
 
@@ -244,11 +322,6 @@ elif page == "Model Training":
         st.pyplot(fig)
 
         st.subheader("ROC Curve & AUC")
-        if model_choice == "Logistic Regression":
-            y_prob = model.predict_proba(X_test_scaled)[:,1]
-        else:
-            y_prob = model.predict_proba(X_test)[:,1]
-
         fpr, tpr, _ = roc_curve(y_test, y_prob)
         auc_score = roc_auc_score(y_test, y_prob)
         fig, ax = plt.subplots()
@@ -258,6 +331,7 @@ elif page == "Model Training":
         ax.set_ylabel("True Positive Rate")
         ax.legend()
         st.pyplot(fig)
+
 
 # ================================
 # 4. Prediction
@@ -303,6 +377,119 @@ elif page == "Prediction":
             st.error(f"⚠️ This customer is likely to churn. (Probability: {prob:.2f})")
         else:
             st.success(f"✅ This customer is likely to stay. (Probability: {prob:.2f})")
+# ================================
+# 5. Final Report Dashboard
+# ================================
+elif page == "Final Report":
+    st.markdown("<h1 style='text-align:center; color:#2ecc71;'>📊 Customer Churn Prediction – Final Report</h1>", unsafe_allow_html=True)
+
+    # --- Task Summary ---
+    with st.container():
+        st.subheader("📝 Project Overview")
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Project ID", "1")
+        col2.metric("Duration", "5 Days")
+        col3.metric("Objective", "Predict Churn")
+
+        best_model = "SVM"
+        roc_auc = 0.52
+        churn_rate = "26.7%"
+
+        # --- KPI Metrics Section ---
+        st.markdown("### 📊 Key Performance Indicators")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric(label="🏆 Best Model", value=best_model)
+
+        with col2:
+            st.metric(label="📈 ROC AUC", value=f"{roc_auc:.2f}")
+
+        with col3:
+            st.metric(label="📉 Churn Rate", value=churn_rate)
+        st.info("**Goal:** Build ML models to predict customer churn using telecom data and provide insights.")
+    # --- Deliverables Section ---
+    with st.expander("📦 Deliverables", expanded=True):
+        st.markdown("""
+        - 📊 **EDA** – Univariate & Bivariate insights with visualizations  
+        - 🛠 **Feature Engineering** – Encoding, scaling, and feature selection  
+        - 🔀 **Model Training** – Logistic Regression, SVM, Decision Tree, Random Forest, XGBoost, LightGBM  
+        - 📈 **Evaluation** – Confusion Matrix, ROC-AUC, Model Comparison  
+        - 📑 **Final Report** – Results & Recommendations  
+        """)
+
+    # --- Dataset Description ---
+    st.subheader("📂 Dataset Overview")
+    st.write("**10,000 customer records with demographics, billing info, contracts, and churn label.**")
+
+    dataset_info = pd.DataFrame({
+        "Feature": ["CustomerID", "Gender", "SeniorCitizen", "Tenure", "MonthlyCharges",
+                    "TotalCharges", "Contract", "PaymentMethod", "Churn"],
+        "Description": [
+            "Unique customer identifier",
+            "Male / Female",
+            "Senior citizen status (1=Yes, 0=No)",
+            "Months with company",
+            "Monthly bill amount",
+            "Total bill since joining",
+            "Contract type (Month-to-month / 1yr / 2yr)",
+            "Billing method",
+            "Target variable (1=Churn, 0=Stay)"
+        ]
+    })
+    st.table(dataset_info)
+
+    # --- EDA Tabs ---
+    st.subheader("📊 Exploratory Data Analysis (EDA)")
+    tab1, tab2, tab3 = st.tabs(["Univariate", "Bivariate", "Correlation"])
+
+    with tab1:
+        st.image("https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/countplot_gender_distribution.png", caption="Gender Distribution")
+        st.image("https://raw.github.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/countplot_seniorcitizen_distribution.png", caption="Senior Citizen Status")
+        st.image("https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/histplot_tenure_distribution.png", caption="Tenure Distribution")
+
+    with tab2:
+        st.image("https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/gender_vs_churn.png", caption="Gender vs Churn")
+        st.image("https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/churn_vs_senior_citizen.png", caption="Senior Citizen vs Churn")
+        st.image("https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/churn_rate_vs_contract.png", caption="Contract vs Churn")
+
+    with tab3:
+        st.image("https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/correlation_matrix.png", caption="Correlation Heatmap")
+
+    # --- Feature Engineering ---
+    st.subheader("🛠 Feature Engineering Steps")
+    st.markdown("""
+    1. **Train/Test Split** (stratified to preserve churn ratio)  
+    2. **Data Cleaning** (duplicates, leakage check)  
+    3. **Derived Features** – Tenure groups, high monthly flag, contract-payment combo  
+    4. **Encoding & Scaling** – One-hot encoding, StandardScaler  
+    5. **Multicollinearity Removal** – Dropped `TotalCharges`, redundant features  
+    6. **Feature Selection** – Contract, Tenure, MonthlyCharges ranked top predictors  
+    """)
+
+    # --- Model Comparison ---
+    st.subheader("🤖 Model Performance")
+    st.image("https://raw.githubusercontent.com/AsadullahShehbaz/Bank-Churn-Prediction-and-Analysis/main/images/barplot%20of%20models.png", caption="Model Comparison (ROC AUC)")
+
+    model_results = pd.DataFrame({
+        "Model": ["SVM", "XGBoost", "AdaBoost", "Decision Tree", "Random Forest", "Logistic Regression", "LightGBM"],
+        "ROC AUC": [0.5186, 0.5089, 0.5078, 0.5059, 0.5020, 0.4853, 0.4956]
+    })
+    st.dataframe(model_results.style.highlight_max(axis=0, color="lightgreen"))
+
+    # --- Key Observations ---
+    st.subheader("🔍 Key Observations & Next Steps")
+    st.warning("""
+    - All models performed **close to random guess (~0.5 ROC AUC)**  
+    - **SVM** achieved best performance (**0.5186**) but not deployable yet  
+    - Dataset lacks strong predictive features  
+    - Next: Collect behavioral data, SMOTE/imbalance handling, advanced feature engineering  
+    """)
+
+    # --- Conclusion ---
+    st.success("✅ **Conclusion:** Current dataset insufficient for production-grade churn prediction. More domain-driven features required.")
+
 
 elif page == "About Me":
     st.markdown(
